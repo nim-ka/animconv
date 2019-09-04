@@ -187,6 +187,10 @@ function processObject (object) {
 		animIndex.push(`    .hword ${indexValues.map(paddedHex).join`, `} # ${objectName} ${part.type} ${partName}`)
 	}
 
+	while (animValues.length % 12) {
+		animValues.push(0)
+	}
+
 	anim.push(`    .hword ${paddedHex(loopStart)} # loop start`)
 	anim.push(`    .hword ${paddedHex(loopEnd)} # loop end`)
 	anim.push(`    .hword ${paddedHex(0)} # unused0A`)
