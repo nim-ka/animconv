@@ -90,7 +90,24 @@ function chunk (arr, size) {
 
 function processObject (object) {
 	let objectName = getFirstValue(object)
-	let parts = object.children.slice(1)
+
+	let loopStart = object.children[1]
+
+	if (loopStart.type == "loopStart") {
+		loopStart = Number(getFirstValue(loopStart))
+	} else {
+		error(`Expected loopStart, got ${loopStart.type}`)
+	}
+
+	let loopEnd = object.children[2]
+
+	if (loopEnd.type == "loopEnd") {
+		loopEnd = Number(getFirstValue(loopEnd))
+	} else {
+		error(`Expected loopEnd, got ${loopEnd.type}`)
+	}
+
+	let parts = object.children.slice(3)
 
 	let animValuesName = `${objectName}_anim_values`
 	let animIndexName = `${objectName}_anim_index`
@@ -105,52 +122,52 @@ function processObject (object) {
 		`    .hword ${paddedHex(0)} # starting frame`
 	]
 
-	for (let part of parts) {
+	if (parts[0].type != "masterpart") {
+		error(`Part 0 should be a masterpart`)
+	}
+
+	for (let i = 0; i < parts.length; i ++) {
+		let part = parts[i]
 		let partName = getFirstValue(part)
+
+		if (i > 0 && parts[i].type == "masterpart") {
+			error(`Part ${i} is a masterpart! There can only be one masterpart.`)
+		}
 
 		let frames = part.children.slice(1)
 
-		let loopStart = 0
-		let loopEnd = frames.length
-
-		for (let i = 0; i < frames.length; i ++) {
-			if (frames[i].type != "frame") {
-				error(`Expected frame, got node of type ${frames[i].type}`)
+		for (let j = 0; j < frames.length; j ++) {
+			if (frames[j].type != "frame") {
+				error(`Expected frame, got node of type ${frames[j].type}`)
 			}
 
-			if (frames[i].children[0].type == "loop") {
-				if (i != frames.length - 1) {
-					error(`Loop end point at frame ${i}, but found more frames after`)
+			if (frames[j].children[0].type == "loop") {
+				if (j != frames.length - 1) {
+					error(`Loop end point at frame ${j}, but found more frames after`)
 				}
 
-				loopStart = Number(frames[i].children[0].children[0].value)
-				loopEnd = Number(i)
+				loopStart = Number(frames[j].children[0].children[0].value)
+				loopEnd = Number(j)
 
 				frames = frames.slice(0, frames.length - 1)
 			}
 		}
 
-		anim.push(`    .hword ${paddedHex(loopStart)} # loop start`)
-		anim.push(`    .hword ${paddedHex(loopEnd)} # loop end`)
-		anim.push(`    .hword ${paddedHex(0)} # unused0A`)
-		anim.push(`    .word ${animValuesName}`)
-		anim.push(`    .word ${animIndexName}`)
-
 		let indexValues = []
 
-		for (let value of ["x", "y", "z", "w", "p", "r"]) {
+		for (let value of (part.type == "masterpart" ? ["x", "y", "z", "w", "p", "r"] : ["w", "p", "r"])) {
 			let values = []
 
-			for (let i = 0; i < frames.length; i ++) {
-				values.push(Number(findChildFirstValue(frames[i], value)))
+			for (let j = 0; j < frames.length; j ++) {
+				values.push(Number(findChildFirstValue(frames[j], value)))
 			}
 
 			if (values.filter((v) => v != values[0]).length) {
 				indexValues.push(loopEnd)
 				indexValues.push(animValues.length)
 
-				for (let i = 0; i < loopEnd; i ++) {
-					animValues.push(values[i])
+				for (let j = 0; j < loopEnd; j ++) {
+					animValues.push(values[j])
 				}
 			} else {
 				indexValues.push(1)
@@ -167,8 +184,15 @@ function processObject (object) {
 			}
 		}
 
-		animIndex.push(`    .hword ${indexValues.map(paddedHex).join`, `} # ${objectName} part ${partName}`)
+		animIndex.push(`    .hword ${indexValues.map(paddedHex).join`, `} # ${objectName} ${part.type} ${partName}`)
 	}
+
+	anim.push(`    .hword ${paddedHex(loopStart)} # loop start`)
+	anim.push(`    .hword ${paddedHex(loopEnd)} # loop end`)
+	anim.push(`    .hword ${paddedHex(0)} # unused0A`)
+	anim.push(`    .word ${animValuesName}`)
+	anim.push(`    .word ${animIndexName}`)
+        anim.push(`    .word  ${paddedHex(0)} # length (unused in objs)`)
 
 	return [
 		[
