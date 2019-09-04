@@ -1,0 +1,370 @@
+.object n64
+	.loopStart 0 loopStart.
+	.loopEnd 19 loopEnd.
+	.masterpart master
+		.frame
+			.x 0 x.
+			.y 0 y.
+			.z 0 z.
+			.w 0x0000 w.
+			.p 0x0000 p.
+			.r 0x0000 r.
+		frame.
+		.frame
+			.x 5 x.
+			.y 0 y.
+			.z 0 z.
+			.w 0x0000 w.
+			.p 0x0000 p.
+			.r 0x0000 r.
+		frame.
+		.frame
+			.x 10 x.
+			.y 0 y.
+			.z 0 z.
+			.w 0x0000 w.
+			.p 0x0000 p.
+			.r 0x0000 r.
+		frame.
+		.frame
+			.x 15 x.
+			.y 0 y.
+			.z 0 z.
+			.w 0x0000 w.
+			.p 0x0000 p.
+			.r 0x0000 r.
+		frame.
+		.frame
+			.x 20 x.
+			.y 0 y.
+			.z 0 z.
+			.w 0x0000 w.
+			.p 0x0000 p.
+			.r 0x0000 r.
+		frame.
+		.frame
+			.x 25 x.
+			.y 0 y.
+			.z 0 z.
+			.w 0x0000 w.
+			.p 0x0000 p.
+			.r 0x0000 r.
+		frame.
+		.frame
+			.x 30 x.
+			.y 0 y.
+			.z 0 z.
+			.w 0x0000 w.
+			.p 0x0000 p.
+			.r 0x0000 r.
+		frame.
+		.frame
+			.x 35 x.
+			.y 0 y.
+			.z 0 z.
+			.w 0x0000 w.
+			.p 0x0000 p.
+			.r 0x0000 r.
+		frame.
+		.frame
+			.x 40 x.
+			.y 0 y.
+			.z 0 z.
+			.w 0x0000 w.
+			.p 0x0000 p.
+			.r 0x0000 r.
+		frame.
+		.frame
+			.x 45 x.
+			.y 0 y.
+			.z 0 z.
+			.w 0x0000 w.
+			.p 0x0000 p.
+			.r 0x0000 r.
+		frame.
+		.frame
+			.x 50 x.
+			.y 0 y.
+			.z 0 z.
+			.w 0x0000 w.
+			.p 0x0000 p.
+			.r 0x0000 r.
+		frame.
+		.frame
+			.x 45 x.
+			.y 0 y.
+			.z 0 z.
+			.w 0x0000 w.
+			.p 0x0000 p.
+			.r 0x0000 r.
+		frame.
+		.frame
+			.x 40 x.
+			.y 0 y.
+			.z 0 z.
+			.w 0x0000 w.
+			.p 0x0000 p.
+			.r 0x0000 r.
+		frame.
+		.frame
+			.x 35 x.
+			.y 0 y.
+			.z 0 z.
+			.w 0x0000 w.
+			.p 0x0000 p.
+			.r 0x0000 r.
+		frame.
+		.frame
+			.x 30 x.
+			.y 0 y.
+			.z 0 z.
+			.w 0x0000 w.
+			.p 0x0000 p.
+			.r 0x0000 r.
+		frame.
+		.frame
+			.x 25 x.
+			.y 0 y.
+			.z 0 z.
+			.w 0x0000 w.
+			.p 0x0000 p.
+			.r 0x0000 r.
+		frame.
+		.frame
+			.x 20 x.
+			.y 0 y.
+			.z 0 z.
+			.w 0x0000 w.
+			.p 0x0000 p.
+			.r 0x0000 r.
+		frame.
+		.frame
+			.x 15 x.
+			.y 0 y.
+			.z 0 z.
+			.w 0x0000 w.
+			.p 0x0000 p.
+			.r 0x0000 r.
+		frame.
+		.frame
+			.x 10 x.
+			.y 0 y.
+			.z 0 z.
+			.w 0x0000 w.
+			.p 0x0000 p.
+			.r 0x0000 r.
+		frame.
+		.frame
+			.x 5 x.
+			.y 0 y.
+			.z 0 z.
+			.w 0x0000 w.
+			.p 0x0000 p.
+			.r 0x0000 r.
+		frame.
+	masterpart.
+        .part left
+		.frame
+			.w 0x0000 w.
+			.p 0x0000 p.
+			.r 0x0000 r.
+		frame.
+		.frame
+			.w 0x0400 w.
+			.p 0x0400 p.
+			.r 0x0000 r.
+		frame.
+		.frame
+			.w 0x0800 w.
+			.p 0x0800 p.
+			.r 0x0000 r.
+		frame.
+		.frame
+			.w 0x0C00 w.
+			.p 0x0C00 p.
+			.r 0x0000 r.
+		frame.
+		.frame
+			.w 0x1000 w.
+			.p 0x1000 p.
+			.r 0x0000 r.
+		frame.
+		.frame
+			.w 0x1400 w.
+			.p 0x1400 p.
+			.r 0x0000 r.
+		frame.
+		.frame
+			.w 0x1800 w.
+			.p 0x1800 p.
+			.r 0x0000 r.
+		frame.
+		.frame
+			.w 0x1C00 w.
+			.p 0x1C00 p.
+			.r 0x0000 r.
+		frame.
+		.frame
+			.w 0x2000 w.
+			.p 0x2000 p.
+			.r 0x0000 r.
+		frame.
+		.frame
+			.w 0x2400 w.
+			.p 0x2400 p.
+			.r 0x0000 r.
+		frame.
+		.frame
+			.w 0x2800 w.
+			.p 0x2800 p.
+			.r 0x0000 r.
+		frame.
+		.frame
+			.w 0x2C00 w.
+			.p 0x2C00 p.
+			.r 0x0000 r.
+		frame.
+		.frame
+			.w 0x3000 w.
+			.p 0x3000 p.
+			.r 0x0000 r.
+		frame.
+		.frame
+			.w 0x3400 w.
+			.p 0x3400 p.
+			.r 0x0000 r.
+		frame.
+		.frame
+			.w 0x3800 w.
+			.p 0x3800 p.
+			.r 0x0000 r.
+		frame.
+		.frame
+			.w 0x3C00 w.
+			.p 0x3C00 p.
+			.r 0x0000 r.
+		frame.
+		.frame
+			.w 0x4000 w.
+			.p 0x4000 p.
+			.r 0x0000 r.
+		frame.
+		.frame
+			.w 0x4400 w.
+			.p 0x4400 p.
+			.r 0x0000 r.
+		frame.
+		.frame
+			.w 0x4800 w.
+			.p 0x4800 p.
+			.r 0x0000 r.
+		frame.
+		.frame
+			.w 0x4C00 w.
+			.p 0x4C00 p.
+			.r 0x0000 r.
+		frame.
+	part.
+	.part right
+		.frame
+			.w 0x0000 w.
+			.p 0x0000 p.
+			.r 0x0000 r.
+		frame.
+		.frame
+			.w 0x0000 w.
+			.p 0x0400 p.
+			.r 0x0400 r.
+		frame.
+		.frame
+			.w 0x0000 w.
+			.p 0x0800 p.
+			.r 0x0800 r.
+		frame.
+		.frame
+			.w 0x0000 w.
+			.p 0x0C00 p.
+			.r 0x0C00 r.
+		frame.
+		.frame
+			.w 0x0000 w.
+			.p 0x1000 p.
+			.r 0x1000 r.
+		frame.
+		.frame
+			.w 0x0000 w.
+			.p 0x1400 p.
+			.r 0x1400 r.
+		frame.
+		.frame
+			.w 0x0000 w.
+			.p 0x1800 p.
+			.r 0x1800 r.
+		frame.
+		.frame
+			.w 0x0000 w.
+			.p 0x1C00 p.
+			.r 0x1C00 r.
+		frame.
+		.frame
+			.w 0x0000 w.
+			.p 0x2000 p.
+			.r 0x2000 r.
+		frame.
+		.frame
+			.w 0x0000 w.
+			.p 0x2400 p.
+			.r 0x2400 r.
+		frame.
+		.frame
+			.w 0x0000 w.
+			.p 0x2800 p.
+			.r 0x2800 r.
+		frame.
+		.frame
+			.w 0x0000 w.
+			.p 0x2C00 p.
+			.r 0x2C00 r.
+		frame.
+		.frame
+			.w 0x0000 w.
+			.p 0x3000 p.
+			.r 0x3000 r.
+		frame.
+		.frame
+			.w 0x0000 w.
+			.p 0x3400 p.
+			.r 0x3400 r.
+		frame.
+		.frame
+			.w 0x0000 w.
+			.p 0x3800 p.
+			.r 0x3800 r.
+		frame.
+		.frame
+			.w 0x0000 w.
+			.p 0x3C00 p.
+			.r 0x3C00 r.
+		frame.
+		.frame
+			.w 0x0000 w.
+			.p 0x4000 p.
+			.r 0x4000 r.
+		frame.
+		.frame
+			.w 0x0000 w.
+			.p 0x4400 p.
+			.r 0x4400 r.
+		frame.
+		.frame
+			.w 0x0000 w.
+			.p 0x4800 p.
+			.r 0x4800 r.
+		frame.
+		.frame
+			.w 0x0000 w.
+			.p 0x4C00 p.
+			.r 0x4C00 r.
+		frame.
+	part.
+object.
