@@ -1,61 +1,21 @@
 const getArgs = require("./args.js")
 const parseAnimFile = require("./parse.js")
 const error = require("./error.js")
+const util = require("./util.js")
+
 const fs = require("fs")
 
 let args = getArgs(process.argv.slice(2), {
-	"--help": { len: 0, short: "-h" },
+	"--help":    { len: 0, short: "-h" },
 	"--decimal": { len: 0, short: "-d" },
-	"--output": { len: 1, short: "-o" }
+	"--output":  { len: 1, short: "-o" },
+	"--verbose": { len: 0, short: "-v" }
 })
 
-if (process.argv.length == 2 || args["-h"] || args["--help"]) {
-	console.log([
-		`animconv: SM64 Decomp ANIMation CONVerter`,
-		``,
-		`Usage: node main.js [options] [filename]`,
-		`All options are unordered (including filename).`,
-		`-----`,
-		`OPTIONS:`,
-		`\t-d / --decimal:`,
-		`\t\tOutputs values in decimal instead of hex.`,
-		`\t-h / --help:`,
-		`\t\tDisplays this help menu.`,
-		`\t-o <outfile> / --output <outfile>:`,
-		`\t\tOutputs to outfile.`
-	].join`\n`)
-} else {
-	let filename = args.identifiers[0].value
-
-	if (!filename) {
-		error(`No filename found`)
+function log (msg) {
+	if (args["--output"] || args["--verbose"]) {
+		process.stdout.write(`${msg}\n`)
 	}
-
-	let animFile = parseAnimFile(filename)
-
-	if (!animFile) {
-		error(`Could not open file ${filename}. (Did you pass one too many arguments to ${args.identifiers[0].lastOption}?)`)
-	}
-
-	if (animFile.type != "object") {
-		error(`Animation file data is non-supported type ${animFile.type}; try wrapping with .object`)
-	}
-
-	let output = processObject(animFile)
-
-	if (args["--output"]) {
-		fs.writeFile(args["--output"][0], output + "\n", () => console.log("Done!"));
-	} else {
-		console.log(output)
-	}
-}
-
-function getFirstValue (node) {
-	return node.children[0].value
-}
-
-function findChildFirstValue (node, type) {
-	return getFirstValue(node.children.filter((child) => child.type == type)[0])
 }
 
 function paddedHex (num) {
@@ -74,27 +34,66 @@ function paddedHex (num) {
 	return `0x${"-".repeat(neg)}${"0".repeat(4 - num.length)}${num.toUpperCase()}`
 }
 
-function chunk (arr, size) {
-	let arrs = [[]]
+if (process.argv.length == 2 || args["-h"] || args["--help"]) {
+	console.log([
+		`animconv: SM64 Decomp ANIMation CONVerter`,
+		``,
+		`Usage: node main.js [options] [filename]`,
+		`All options are unordered (including filename).`,
+		`-----`,
+		`OPTIONS:`,
+		`\t-d / --decimal:`,
+		`\t\tOutputs values in decimal instead of hex.`,
+		`\t-h / --help:`,
+		`\t\tDisplays this help menu.`,
+		`\t-o <outfile> / --output <outfile>:`,
+		`\t\tOutputs to outfile.`,
+		`\t-v / --verbose:`,
+		`\t\tLogs steps of the process when outputting to stdout.`,
+		`\t\tHas no effect when -o is used, as logs are printed regardless.`
+	].join`\n`)
+} else {
+	let filename = args.identifiers[0].value
 
-	for (let i = 0; i < arr.length; i ++) {
-		arrs[arrs.length - 1].push(arr[i])
-
-		if (arrs[arrs.length - 1].length == size && i != arr.length - 1) {
-			arrs.push([])
-		}
+	if (!filename) {
+		error(`No filename found`)
 	}
 
-	return arrs
+	let animFile = parseAnimFile(filename, log)
+
+	if (!animFile) {
+		error(`Could not open file ${filename}. (Did you pass one too many arguments to ${args.identifiers[0].lastOption}?)`)
+	}
+
+	if (animFile.type != "object") {
+		error(`Animation file data is non-supported type ${animFile.type}; try wrapping with .object`)
+	}
+
+	log("Processing object...")
+
+	let output = processObject(animFile)
+
+	log("Done!")
+	log("Writing...")
+
+	if (args["--output"]) {
+		fs.writeFile(args["--output"][0], output + "\n", () => console.log("Done!"));
+	} else {
+		if (args["--verbose"]) {
+			console.log("-----")
+		}
+
+		console.log(output)
+	}
 }
 
 function processObject (object) {
-	let objectName = getFirstValue(object)
+	let objectName = util.getFirstValue(object)
 
 	let loopStart = object.children[1]
 
 	if (loopStart.type == "loopStart") {
-		loopStart = Number(getFirstValue(loopStart))
+		loopStart = Number(util.getFirstValue(loopStart))
 	} else {
 		error(`Expected loopStart, got ${loopStart.type}`)
 	}
@@ -102,7 +101,7 @@ function processObject (object) {
 	let loopEnd = object.children[2]
 
 	if (loopEnd.type == "loopEnd") {
-		loopEnd = Number(getFirstValue(loopEnd))
+		loopEnd = Number(util.getFirstValue(loopEnd))
 	} else {
 		error(`Expected loopEnd, got ${loopEnd.type}`)
 	}
@@ -128,7 +127,7 @@ function processObject (object) {
 
 	for (let i = 0; i < parts.length; i ++) {
 		let part = parts[i]
-		let partName = getFirstValue(part)
+		let partName = util.getFirstValue(part)
 
 		if (i > 0 && parts[i].type == "masterpart") {
 			error(`Part ${i} is a masterpart! There can only be one masterpart.`)
@@ -136,20 +135,17 @@ function processObject (object) {
 
 		let frames = part.children.slice(1)
 
+		if (frames.length - 1 > loopEnd) {
+			error(`Unnecessary frames after end of loop`)
+		}
+
+		if (frames.length - 1 < loopEnd) {
+			error(`Not enough frames for the loop! This will result in corrupted animations!`)
+		}
+
 		for (let j = 0; j < frames.length; j ++) {
 			if (frames[j].type != "frame") {
 				error(`Expected frame, got node of type ${frames[j].type}`)
-			}
-
-			if (frames[j].children[0].type == "loop") {
-				if (j != frames.length - 1) {
-					error(`Loop end point at frame ${j}, but found more frames after`)
-				}
-
-				loopStart = Number(frames[j].children[0].children[0].value)
-				loopEnd = Number(j)
-
-				frames = frames.slice(0, frames.length - 1)
 			}
 		}
 
@@ -159,17 +155,12 @@ function processObject (object) {
 			let values = []
 
 			for (let j = 0; j < frames.length; j ++) {
-				values.push(Number(findChildFirstValue(frames[j], value)))
+				values.push(Number(util.findChildFirstValue(frames[j], value)))
 			}
 
-			if (values.filter((v) => v != values[0]).length) {
-				indexValues.push(loopEnd)
-				indexValues.push(animValues.length)
+			let idxOfValues = animValues.findIndex((e, i) => util.arrayEquals(animValues.slice(i, i + values.length), values))
 
-				for (let j = 0; j < loopEnd; j ++) {
-					animValues.push(values[j])
-				}
-			} else {
+			if (util.allSameElement(values)) {
 				indexValues.push(1)
 
 				let offset
@@ -181,6 +172,16 @@ function processObject (object) {
 				}
 
 				indexValues.push(offset)
+			} else if (idxOfValues > -1) {
+				indexValues.push(loopEnd)
+				indexValues.push(idxOfValues)
+			} else {
+				indexValues.push(loopEnd)
+				indexValues.push(animValues.length)
+
+				for (let j = 0; j < values.length; j ++) {
+					animValues.push(values[j])
+				}
 			}
 		}
 
@@ -201,7 +202,7 @@ function processObject (object) {
 	return [
 		[
 			`${animValuesName}:`,
-			chunk(animValues.map(paddedHex), 12).map((line) => `    .hword ${line.join`, `}`).join`\n`
+			util.chunk(animValues.map(paddedHex), 12).map((line) => `    .hword ${line.join`, `}`).join`\n`
 		].join`\n`,
 		[
 			`${animIndexName}:`,

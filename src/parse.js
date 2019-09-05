@@ -1,7 +1,11 @@
 const error = require("./error.js")
+const util = require("./util.js")
+
 const fs = require("fs")
 
-function tokenize (data) {
+function tokenize (data, log) {
+	log("Lexing file...")
+
 	let tokens = []
 	let token = ""
 	
@@ -48,18 +52,16 @@ function tokenize (data) {
 	if (token.length) {
 		tokens.push(token)
 	}
+
+	log("Done!")
 	
 	return tokens
-}
-
-function getCounter (token) {
-	return token.slice(1) + "."
 }
 
 function parse (tokens) {
 	let newTokens = []
 	
-	if (tokens[0][0] != "." || tokens[tokens.length - 1] != getCounter(tokens[0])) {
+	if (tokens[0][0] != "." || tokens[tokens.length - 1] != util.getCounter(tokens[0])) {
 		error(`Couldn't parse non-block: ${JSON.stringify(tokens)}`)
 	}
 	
@@ -69,7 +71,7 @@ function parse (tokens) {
 		if (tokens[i][0] == ".") {
 			let j = i
 			
-			while (tokens[i] != tokens[j].slice(1) + ".") {
+			while (tokens[i] != util.getCounter(tokens[j])) {
 				i ++
 			}
 			
@@ -88,7 +90,19 @@ function parse (tokens) {
 	}
 }
 
-module.exports = function parseAnimFile (filename) {
+function parseWrapper (tokens, log) {
+	log("Creating AST...")
+
+	let ast = parse(tokens)
+
+	log("Done!")
+
+	return ast
+}
+
+module.exports = function parseAnimFile (filename, log) {
+	log("Reading file...")
+
 	let fileData
 
 	try {
@@ -97,5 +111,7 @@ module.exports = function parseAnimFile (filename) {
 		return false
 	}
 
-	return parse(tokenize(fileData))
+	log("Done!")
+
+	return parseWrapper(tokenize(fileData, log), log)
 }
