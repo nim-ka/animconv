@@ -90,6 +90,7 @@ if (process.argv.length == 2 || args["-h"] || args["--help"]) {
 function processObject (object) {
 	let objectName = util.getFirstValue(object)
 
+	// Get main loop bounds
 	let loopStart = object.children[1]
 
 	if (loopStart.type == "loopStart") {
@@ -108,19 +109,15 @@ function processObject (object) {
 
 	let parts = object.children.slice(3)
 
+	// Get names for the parts of the animation
 	let animValuesName = `${objectName}_anim_values`
 	let animIndexName = `${objectName}_anim_index`
 	let animName = `${objectName}_anim`
 
 	let animValues = []
 	let animIndex = []
-	let anim = [
-		`${animName}:`,
-		`    .hword ${paddedHex(0)} # flags`,
-		`    .hword ${paddedHex(0)} # unk02`,
-		`    .hword ${paddedHex(0)} # starting frame`
-	]
 
+	// We need a masterpart
 	if (parts[0].type != "masterpart") {
 		error(`Part 0 should be a masterpart`)
 	}
@@ -140,7 +137,7 @@ function processObject (object) {
 		}
 
 		if (frames.length - 1 < loopEnd) {
-			error(`Not enough frames for the loop! This will result in corrupted animations!`)
+			log(`WARNING: Part ${partName} doesn't have enough frames for the main loop. This means it will loop itself.`)
 		}
 
 		for (let j = 0; j < frames.length; j ++) {
@@ -152,14 +149,17 @@ function processObject (object) {
 		let indexValues = []
 
 		for (let value of (part.type == "masterpart" ? ["x", "y", "z", "w", "p", "r"] : ["w", "p", "r"])) {
+			// Get the values for the property for all the frames it's defined
 			let values = []
 
 			for (let j = 0; j < frames.length; j ++) {
 				values.push(Number(util.findChildFirstValue(frames[j], value)))
 			}
 
+			// Find if the values can already be found in the value table
 			let idxOfValues = animValues.findIndex((e, i) => util.arrayEquals(animValues.slice(i, i + values.length), values))
 
+			// If the property isn't animated, push an 0x0001 entry
 			if (util.allSameElement(values)) {
 				indexValues.push(1)
 
@@ -168,15 +168,17 @@ function processObject (object) {
 				if (animValues.includes(values[0])) {
 					offset = animValues.indexOf(values[0])
 				} else {
-					offset = animValues.push(values[0]) - 1
+					offset = animValues.push(values[0]) - 1 // Get index of pushed element
 				}
 
 				indexValues.push(offset)
 			} else if (idxOfValues > -1) {
-				indexValues.push(loopEnd)
+				// If the values were found in the value table, use that index
+				indexValues.push(values.length)
 				indexValues.push(idxOfValues)
 			} else {
-				indexValues.push(loopEnd)
+				// If the values are new, push them
+				indexValues.push(values.length)
 				indexValues.push(animValues.length)
 
 				for (let j = 0; j < values.length; j ++) {
@@ -188,17 +190,26 @@ function processObject (object) {
 		animIndex.push(`    .hword ${indexValues.map(paddedHex).join`, `} # ${objectName} ${part.type} ${partName}`)
 	}
 
+	// Pad to 12 (TODO: odd number of args to .hword cause weird errors, how much do we really need to pad to}?)
 	while (animValues.length % 12) {
 		animValues.push(0)
 	}
 
-	anim.push(`    .hword ${paddedHex(loopStart)} # loop start`)
-	anim.push(`    .hword ${paddedHex(loopEnd)} # loop end`)
-	anim.push(`    .hword ${paddedHex(0)} # unused0A`)
-	anim.push(`    .word ${animValuesName}`)
-	anim.push(`    .word ${animIndexName}`)
-        anim.push(`    .word  ${paddedHex(0)} # length (unused in objs)`)
+	// Write anim header
+	let animHeader = [
+ 		`${animName}:`,
+		`    .hword ${paddedHex(0)} # flags`,
+		`    .hword ${paddedHex(0)} # unk02`,
+		`    .hword ${paddedHex(0)} # starting frame`,
+		`    .hword ${paddedHex(loopStart)} # loop start`,
+		`    .hword ${paddedHex(loopEnd + 1)} # loop end`, // The loop end in SM64's system is exclusive
+		`    .hword ${paddedHex(0)} # unused0A`,
+		`    .word ${animValuesName}`,
+		`    .word ${animIndexName}`,
+        	`    .word  ${paddedHex(0)} # length (unused in objs)`
+	]
 
+	// Chain everything together
 	return [
 		[
 			`${animValuesName}:`,
@@ -208,6 +219,6 @@ function processObject (object) {
 			`${animIndexName}:`,
 			animIndex.join`\n`
 		].join`\n`,
-		anim.join`\n`
+		animHeader.join`\n`
 	].join`\n\n`
 }
